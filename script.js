@@ -7,6 +7,7 @@ questionPrizeMap.forEach(({questionNumber, prize}) => {
     const formattedPrize = prize.replace('Â', '');
     const question = document.createElement("p");
     question.innerText = `${questionNo} ${formattedPrize}`;
+    question.style.color = questionNo % 5 === 0 ? '#f2e9a7' : '#f29435';
     progress.appendChild(question);
 });
 
