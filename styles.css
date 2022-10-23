@@ -1,3 +1,40 @@
 h1 {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
+
+.border{
+    border: 5px solid red;
+}
+
+.border-diff{
+    border: 5px solid purple;
+}
+
+#gameboard{
+    display: flex;
+}
+
+#progress{
+    flex:1 2 20%;
+    display:flex;
+    flex-direction: column-reverse;
+}
+
+#gameplay{
+    flex:4 1 80%;
+}
+
+#lifelines{
+    display: flex;
+    justify-content: space-between;
+}
+
+#lifelines > * {
+    border: 2px solid #53afed;
+    border-radius: 47%;
+    flex-basis: 25%;
+    text-align: center;
+    font-size: 50px;
+    color: white;
+    background-color: black;
+}
