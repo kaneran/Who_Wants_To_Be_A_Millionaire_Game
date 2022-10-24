@@ -5,8 +5,12 @@ const progress = document.querySelector("#progress");
 questionPrizeMap.forEach(({questionNumber, prize}) => {
     const questionNo = questionNumber + 1;
     const formattedPrize = prize.replace('Â', '');
-    const question = document.createElement("p");
-    question.innerText = `${questionNo} ${formattedPrize}`;
+    const question = document.createElement("div");
+    const [index, amount] = [document.createElement("span"),document.createElement("span")];
+    index.innerText = questionNo;
+    amount.innerText = formattedPrize;
+    question.appendChild(index);
+    question.appendChild(amount);
     question.style.color = questionNo % 5 === 0 ? '#f2e9a7' : '#f29435';
     progress.appendChild(question);
 });
