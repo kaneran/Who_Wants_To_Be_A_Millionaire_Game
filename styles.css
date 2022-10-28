@@ -76,7 +76,10 @@ main{
 
 #question{
     min-height: 40%;
-    text-align: center;
+    /* text-align: center; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #answer-placeholder{
@@ -111,4 +114,13 @@ main{
 .highlight {
     background: linear-gradient(90deg, rgba(233,158,6,1) 0%, rgba(238,144,4,1) 50%, rgba(254,155,7,1) 100%);
     color: black;
+}
+
+.startButton {
+    background: linear-gradient(90deg, rgba(6,233,43,1) 0%, rgba(60,238,4,1) 50%, rgba(163,232,145,1) 100%);
+    font-family: monospace;
+    font-size: xx-large;
+    color:white;
+    border: 2px solid #033212;
+    border-radius: 10%;
 }
