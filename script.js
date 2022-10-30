@@ -74,7 +74,7 @@ getQuestions("easy")
     playButton.addEventListener("click", () => beginGame());
     document.querySelector("#question").appendChild(playButton);
   });
-var firstFiveQuestionsThemeAudio = new Audio("first_five_questions_theme.mp3");
+var firstFiveQuestionsThemeAudio = new Audio("assets/sounds/question 1-5/question theme.mp3");
 firstFiveQuestionsThemeAudio.loop = true;
 const beginGame = () => {
   firstFiveQuestionsThemeAudio.play();
