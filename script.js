@@ -84,7 +84,7 @@ const beginGame = () => {
   questionSection.innerText = question.replace(/&quot;/g, "'");
   const answers = [...incorrect_answers, correct_answer];
   const shuffledAnswers = shuffleAnswers(answers);
-  populatesAnswers(shuffledAnswers, correct_answer);
+  populateAnswers(shuffledAnswers, correct_answer);
 };
 
 //Fun-fact, this is called the Fisher-Yates Shuffle algorithm!
@@ -97,23 +97,40 @@ const shuffleAnswers = (answers) => {
 };
 
 const checkAnswer = (selectedAnswer, correctAnswer) => {
-  //play final answer
   firstFiveQuestionsThemeAudio.pause();
   firstFiveQuestionsThemeAudio.currentTime = 0;
+  if(currentQuestionNo > 5){
+    //play final answer
+  }
   setTimeout(() => {
     console.log("Stop the music and reveal the actual answer NOW!");
-    firstFiveQuestionsThemeAudio.play();
   }, 3000);
   selectedAnswer.parentElement.classList.add("highlight");
   selectedAnswer.parentElement.firstChild.style.color = orangeWhiteColor;
+  revealOutcome(selectedAnswer, correctAnswer);
+
+};
+
+const revealOutcome = (selectedAnswer, correctAnswer) => {
   if (selectedAnswer.innerText === correctAnswer) {
+    playSound(true);
     //proceed to the next question
   } else {
     //It's the wrong answer dun dun dun.........
+    playSound();
   }
-};
+  const correctAnswerSection = Array.from(document.querySelectorAll("#answer")).filter((answer) => answer.innerText === correctAnswer)[0];
+  correctAnswerSection.parentElement.classList.remove("highlight");
+  correctAnswerSection.parentElement.style.backgroundColor = '#3eed4f';
+}
 
-const populatesAnswers = (answers, correctAnswer) => {
+const playSound = (isCorrectAnswer) => {
+  var audioPath = `assets/sounds/question ${currentQuestionNo <= 5 ? "1-5" : currentQuestionNo}/${isCorrectAnswer ? "win" : "lose"}.mp3`; 
+  var audio = new Audio(audioPath);
+  audio.play();
+}
+
+const populateAnswers = (answers, correctAnswer) => {
   const answerSections = document.querySelectorAll("#answer");
   answerSections.forEach((answerSection, index) => {
     answerSection.innerText = answers[index];
