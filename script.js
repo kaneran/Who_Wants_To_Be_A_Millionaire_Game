@@ -74,17 +74,9 @@ getQuestions("easy")
     playButton.addEventListener("click", () => beginGame());
     document.querySelector("#question").appendChild(playButton);
   });
-var firstFiveQuestionsThemeAudio = new Audio("assets/sounds/question 1-5/question theme.mp3");
-firstFiveQuestionsThemeAudio.loop = true;
-const beginGame = () => {
-  firstFiveQuestionsThemeAudio.play();
-  const questionNo = currentQuestionNo - 1;
-  const { question, correct_answer, incorrect_answers } =
-    allQuestions[questionNo];
-  questionSection.innerText = question.replace(/&quot;/g, "'");
-  const answers = [...incorrect_answers, correct_answer];
-  const shuffledAnswers = shuffleAnswers(answers);
-  populateAnswers(shuffledAnswers, correct_answer);
+
+const beginGame = () => {  
+  populateAnswers();
 };
 
 //Fun-fact, this is called the Fisher-Yates Shuffle algorithm!
@@ -97,8 +89,8 @@ const shuffleAnswers = (answers) => {
 };
 
 const checkAnswer = (selectedAnswer, correctAnswer) => {
-  firstFiveQuestionsThemeAudio.pause();
-  firstFiveQuestionsThemeAudio.currentTime = 0;
+  // firstFiveQuestionsThemeAudio.pause();
+  // firstFiveQuestionsThemeAudio.currentTime = 0;
   if(currentQuestionNo > 5){
     //play final answer
   }
@@ -112,16 +104,34 @@ const checkAnswer = (selectedAnswer, correctAnswer) => {
 };
 
 const revealOutcome = (selectedAnswer, correctAnswer) => {
+  revealCorrectAnswer(correctAnswer);
   if (selectedAnswer.innerText === correctAnswer) {
     playSound(true);
+    setTimeout(() => {
+      currentQuestionNo++;
+      resetAnswers();
+      populateAnswers();
+    }, 4000);
+    
     //proceed to the next question
   } else {
     //It's the wrong answer dun dun dun.........
     playSound();
   }
-  const correctAnswerSection = Array.from(document.querySelectorAll("#answer")).filter((answer) => answer.innerText === correctAnswer)[0];
+}
+
+const revealCorrectAnswer = (correctAnswer) => {
+  const correctAnswerSection = Array.from(document.querySelectorAll("#answer")).filter((answer) => answer.innerText === correctAnswer.trim())[0];
   correctAnswerSection.parentElement.classList.remove("highlight");
   correctAnswerSection.parentElement.style.backgroundColor = '#3eed4f';
+}
+
+const resetAnswers = () => {
+  document.querySelectorAll("#answer").forEach((answer) => {
+    answer.parentElement.classList.remove("highlight");
+    answer.parentElement.style.removeProperty("background-color");
+    answer.parentElement.firstChild.style.color = "#f29435";
+  });
 }
 
 const playSound = (isCorrectAnswer) => {
@@ -130,12 +140,23 @@ const playSound = (isCorrectAnswer) => {
   audio.play();
 }
 
-const populateAnswers = (answers, correctAnswer) => {
+const populateAnswers = () => {
+  const questionNo = currentQuestionNo - 1;
+  const questionsThemeAudio = new Audio(`assets/sounds/question ${questionNo <= 5 ? '1-5' : questionNo}/question theme.mp3`);
+  questionsThemeAudio.loop = true;
+  questionsThemeAudio.play();
+  const { question, correct_answer, incorrect_answers } =
+    allQuestions[questionNo];
+  questionSection.innerText = question.replace(/&quot;/g, "'");
+  const answers = [...incorrect_answers, correct_answer];
+  const shuffledAnswers = shuffleAnswers(answers);
   const answerSections = document.querySelectorAll("#answer");
   answerSections.forEach((answerSection, index) => {
-    answerSection.innerText = answers[index];
-    answerSection.parentElement.addEventListener("click", () =>
-      checkAnswer(answerSection, correctAnswer)
+    answerSection.innerText = shuffledAnswers[index];
+    answerSection.parentElement.addEventListener("click", () => {
+      questionsThemeAudio.pause();
+      checkAnswer(answerSection, correct_answer);
+    }
     );
   });
 };
