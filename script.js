@@ -36,8 +36,9 @@ const populateProgressSection = () => {
     index.innerText = questionNo;
     amount.innerText = formattedPrize;
     if (doApplyHighlighting) {
-      index.style.color = orangeWhiteColor;
-      question.classList.add("highlight");
+      applyHighlighting(index, question);
+      // index.style.color = orangeWhiteColor;
+      // question.classList.add("highlight");
     } else {
       question.style.color = questionNo % 5 === 0 ? "#f2e9a7" : "#f29435";
     }
@@ -46,6 +47,31 @@ const populateProgressSection = () => {
     progress.appendChild(question);
   });
 };
+
+const applyHighlighting = (index, question) => {
+  index.style.color = orangeWhiteColor;
+  question.classList.add("highlight");
+}
+
+const updateProgressSection = () => {
+  //reset the current question
+  //highlight the next question
+  const questionNo = currentQuestionNo - 2;
+  const nextQuestionNo = currentQuestionNo - 1;
+  const prizeSections = document.querySelectorAll("#progress > div");
+  const nextQuestionSection = prizeSections[nextQuestionNo];
+  const [nextQuestionIndex, nextQuestionAmount] = [nextQuestionSection.children[0], nextQuestionSection.children[1]];
+  nextQuestionAmount.style.color = "#000000";
+  applyHighlighting(nextQuestionIndex, nextQuestionSection);
+
+  const questionSection = prizeSections[questionNo];
+  const [questionIndex, questionAmount] = [questionSection.children[0], questionSection.children[1]];
+  questionSection.classList.remove("highlight");
+  questionIndex.removeAttribute("style");
+  questionAmount.removeAttribute("style");
+  questionSection.style.color = questionNo % 5 === 0 ? "#f2e9a7" : "#f29435";
+}
+
 populateProgressSection();
 const phoneButton = document.querySelector("#phone");
 phoneButton.addEventListener("click", () => {
@@ -100,7 +126,6 @@ const checkAnswer = (selectedAnswer, correctAnswer) => {
   selectedAnswer.parentElement.classList.add("highlight");
   selectedAnswer.parentElement.firstChild.style.color = orangeWhiteColor;
   revealOutcome(selectedAnswer, correctAnswer);
-
 };
 
 const revealOutcome = (selectedAnswer, correctAnswer) => {
@@ -111,6 +136,7 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
       currentQuestionNo++;
       resetAnswers();
       populateAnswers();
+      updateProgressSection();
     }, 4000);
     
     //proceed to the next question
