@@ -37,8 +37,6 @@ const populateProgressSection = () => {
     amount.innerText = formattedPrize;
     if (doApplyHighlighting) {
       applyHighlighting(index, question);
-      // index.style.color = orangeWhiteColor;
-      // question.classList.add("highlight");
     } else {
       question.style.color = questionNo % 5 === 0 ? "#f2e9a7" : "#f29435";
     }
