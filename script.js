@@ -1,4 +1,5 @@
 let currentQuestionNo = 1;
+let answerSelected = false;
 let orangeWhiteColor = "#F6F2DA";
 const populateProgressSection = () => {
   const prizes = [
@@ -156,6 +157,7 @@ const resetAnswers = () => {
     answer.parentElement.style.removeProperty("background-color");
     answer.parentElement.firstChild.style.color = "#f29435";
   });
+  answerSelected = false;
 }
 
 const playSound = (isCorrectAnswer) => {
@@ -178,8 +180,15 @@ const populateAnswers = () => {
   answerSections.forEach((answerSection, index) => {
     answerSection.innerText = shuffledAnswers[index];
     answerSection.parentElement.addEventListener("click", () => {
-      questionsThemeAudio.pause();
-      checkAnswer(answerSection, correct_answer);
+        questionsThemeAudio.pause();
+        //Added this guard to prevent the player selecting a different answer selecting their original answer
+        if(!answerSelected){
+          answerSelected = true;
+          //Have to retrieve the correct again to ensure it doesn't load the previous correct answer
+          const question = currentQuestionNo - 1;
+          const correctAnswer =allQuestions[question].correct_answer;
+          checkAnswer(answerSection, correctAnswer);
+        }
     }
     );
   });
