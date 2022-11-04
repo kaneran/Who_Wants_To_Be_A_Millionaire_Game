@@ -88,21 +88,43 @@ const getQuestions = (difficulty) => {
       allQuestions.push(...questions.results);
     });
 };
+
+const resetAnswers = () => {
+  document.querySelectorAll("#answer").forEach((answer) => {
+    answer.parentElement.classList.remove("highlight");
+    answer.parentElement.style.removeProperty("background-color");
+    answer.parentElement.firstChild.style.color = "#f29435";
+  });
+  answerSelected = false;
+}
+
 const questionSection = document.querySelector("#question");
-getQuestions("easy")
+const getQuestionsAndDisplayPlayButton = () => {
+  allQuestions = [];
+  getQuestions("easy")
   .then(() => getQuestions("medium"))
   .then(() => getQuestions("hard"))
   .then(() => {
-    const playButton = document.createElement("button");
-    playButton.innerText = "Play";
-    playButton.classList.add("startButton");
-    playButton.addEventListener("click", () => beginGame());
-    document.querySelector("#question").appendChild(playButton);
+    displayPlayButton();
   });
+}
+
+getQuestionsAndDisplayPlayButton();
 
 const beginGame = () => {  
+  resetAnswers();
   populateAnswers();
 };
+
+const displayPlayButton = () => {
+  const playButton = document.createElement("button");
+  playButton.innerText = "Play";
+  playButton.classList.add("startButton");
+  playButton.addEventListener("click", () => beginGame());
+  questionSection.innerText = "";
+  questionSection.appendChild(playButton);
+  return playButton;
+}
 
 //Fun-fact, this is called the Fisher-Yates Shuffle algorithm!
 const shuffleAnswers = (answers) => {
@@ -142,6 +164,7 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
   } else {
     //It's the wrong answer dun dun dun.........
     playSound();
+    getQuestionsAndDisplayPlayButton();
   }
 }
 
@@ -149,15 +172,6 @@ const revealCorrectAnswer = (correctAnswer) => {
   const correctAnswerSection = Array.from(document.querySelectorAll("#answer")).filter((answer) => answer.innerText === correctAnswer.trim())[0];
   correctAnswerSection.parentElement.classList.remove("highlight");
   correctAnswerSection.parentElement.style.backgroundColor = '#3eed4f';
-}
-
-const resetAnswers = () => {
-  document.querySelectorAll("#answer").forEach((answer) => {
-    answer.parentElement.classList.remove("highlight");
-    answer.parentElement.style.removeProperty("background-color");
-    answer.parentElement.firstChild.style.color = "#f29435";
-  });
-  answerSelected = false;
 }
 
 const playSound = (isCorrectAnswer) => {
