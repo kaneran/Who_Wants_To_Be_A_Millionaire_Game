@@ -1,24 +1,25 @@
 let currentQuestionNo = 1;
 let answerSelected = false;
 let orangeWhiteColor = "#F6F2DA";
+const prizes = [
+  "£100",
+  "£200",
+  "£300",
+  "£500",
+  "£1,000",
+  "£2,000",
+  "£4,000",
+  "£8,000",
+  "£16,000",
+  "£32,000",
+  "£64,000",
+  "£125,000",
+  "£250,000",
+  "£500,000",
+  "£1 MILLION",
+];
 const populateProgressSection = () => {
-  const prizes = [
-    "£100",
-    "£200",
-    "£300",
-    "£500",
-    "£1,000",
-    "£2,000",
-    "£4,000",
-    "£8,000",
-    "£16,000",
-    "£32,000",
-    "£64,000",
-    "£125,000",
-    "£250,000",
-    "£500,000",
-    "£1 MILLION",
-  ];
+  
   const questionPrizeMap = prizes.map((prize, index) => ({
     questionNumber: index,
     questionAnsweredCorrectly: false,
@@ -99,13 +100,25 @@ const resetAnswers = () => {
 }
 
 const questionSection = document.querySelector("#question");
-const getQuestionsAndDisplayPlayButton = () => {
+const getQuestionsAndDisplayPlayButton = (displayOutro) => {
   allQuestions = [];
   getQuestions("easy")
   .then(() => getQuestions("medium"))
   .then(() => getQuestions("hard"))
   .then(() => {
     displayPlayButton();
+  })
+  .then(() => {
+    if(displayOutro){
+      const outro = document.createElement("p");
+      const questionNo = (currentQuestionNo - 1);
+      let prize;
+      if(questionNo < 5) prize = "£0";
+      else if(questionNo < 10) prize = prizes[4];
+      else prize = prizes[9];
+      outro.innerText = `Game over! You've won ${prize}`;
+      questionSection.appendChild(outro);
+    }
   });
 }
 
@@ -164,7 +177,7 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
   } else {
     //It's the wrong answer dun dun dun.........
     playSound();
-    getQuestionsAndDisplayPlayButton();
+    getQuestionsAndDisplayPlayButton(true);
   }
 }
 

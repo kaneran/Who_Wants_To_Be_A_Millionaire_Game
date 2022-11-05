@@ -80,6 +80,7 @@ main{
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column-reverse;
 }
 
 #answer-placeholder{
@@ -121,7 +122,7 @@ main{
 }
 
 .startButton {
-    background: linear-gradient(90deg, rgba(6,233,43,1) 0%, rgba(60,238,4,1) 50%, rgba(163,232,145,1) 100%);
+    background: linear-gradient(90deg, rgba(142,6,233,1) 0%, rgba(152,4,238,1) 50%, rgba(86,19,233,1) 100%);
     font-family: monospace;
     font-size: xx-large;
     color:white;
