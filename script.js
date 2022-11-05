@@ -19,7 +19,6 @@ const prizes = [
   "£1 MILLION",
 ];
 const populateProgressSection = () => {
-  
   const questionPrizeMap = prizes.map((prize, index) => ({
     questionNumber: index,
     questionAnsweredCorrectly: false,
@@ -51,7 +50,7 @@ const populateProgressSection = () => {
 const applyHighlighting = (index, question) => {
   index.style.color = orangeWhiteColor;
   question.classList.add("highlight");
-}
+};
 
 const updateProgressSection = () => {
   //reset the current question
@@ -60,17 +59,23 @@ const updateProgressSection = () => {
   const nextQuestionNo = currentQuestionNo - 1;
   const prizeSections = document.querySelectorAll("#progress > div");
   const nextQuestionSection = prizeSections[nextQuestionNo];
-  const [nextQuestionIndex, nextQuestionAmount] = [nextQuestionSection.children[0], nextQuestionSection.children[1]];
+  const [nextQuestionIndex, nextQuestionAmount] = [
+    nextQuestionSection.children[0],
+    nextQuestionSection.children[1],
+  ];
   nextQuestionAmount.style.color = "#000000";
   applyHighlighting(nextQuestionIndex, nextQuestionSection);
 
   const questionSection = prizeSections[questionNo];
-  const [questionIndex, questionAmount] = [questionSection.children[0], questionSection.children[1]];
+  const [questionIndex, questionAmount] = [
+    questionSection.children[0],
+    questionSection.children[1],
+  ];
   questionSection.classList.remove("highlight");
   questionIndex.removeAttribute("style");
   questionAmount.removeAttribute("style");
-  questionSection.style.color = questionNo % 5 === 0 ? "#f2e9a7" : "#f29435";
-}
+  questionSection.style.color = questionNo % 5 === 4 ? "#f2e9a7" : "#f29435";
+};
 
 populateProgressSection();
 const phoneButton = document.querySelector("#phone");
@@ -97,34 +102,34 @@ const resetAnswers = () => {
     answer.parentElement.firstChild.style.color = "#f29435";
   });
   answerSelected = false;
-}
+};
 
 const questionSection = document.querySelector("#question");
 const getQuestionsAndDisplayPlayButton = (displayOutro) => {
   allQuestions = [];
   getQuestions("easy")
-  .then(() => getQuestions("medium"))
-  .then(() => getQuestions("hard"))
-  .then(() => {
-    displayPlayButton();
-  })
-  .then(() => {
-    if(displayOutro){
-      const outro = document.createElement("p");
-      const questionNo = (currentQuestionNo - 1);
-      let prize;
-      if(questionNo < 5) prize = "£0";
-      else if(questionNo < 10) prize = prizes[4];
-      else prize = prizes[9];
-      outro.innerText = `Game over! You've won ${prize}`;
-      questionSection.appendChild(outro);
-    }
-  });
-}
+    .then(() => getQuestions("medium"))
+    .then(() => getQuestions("hard"))
+    .then(() => {
+      displayPlayButton();
+    })
+    .then(() => {
+      if (displayOutro) {
+        const outro = document.createElement("p");
+        const questionNo = currentQuestionNo - 1;
+        let prize;
+        if (questionNo < 5) prize = "£0";
+        else if (questionNo < 10) prize = prizes[4];
+        else prize = prizes[9];
+        outro.innerText = `Game over! You've won ${prize}`;
+        questionSection.appendChild(outro);
+      }
+    });
+};
 
 getQuestionsAndDisplayPlayButton();
 
-const beginGame = () => {  
+const beginGame = () => {
   resetAnswers();
   populateAnswers();
 };
@@ -137,7 +142,7 @@ const displayPlayButton = () => {
   questionSection.innerText = "";
   questionSection.appendChild(playButton);
   return playButton;
-}
+};
 
 //Fun-fact, this is called the Fisher-Yates Shuffle algorithm!
 const shuffleAnswers = (answers) => {
@@ -151,12 +156,10 @@ const shuffleAnswers = (answers) => {
 const checkAnswer = (selectedAnswer, correctAnswer) => {
   // firstFiveQuestionsThemeAudio.pause();
   // firstFiveQuestionsThemeAudio.currentTime = 0;
-  if(currentQuestionNo > 5){
+  if (currentQuestionNo > 5) {
     //play final answer
   }
-  setTimeout(() => {
-    console.log("Stop the music and reveal the actual answer NOW!");
-  }, 3000);
+
   selectedAnswer.parentElement.classList.add("highlight");
   selectedAnswer.parentElement.firstChild.style.color = orangeWhiteColor;
   revealOutcome(selectedAnswer, correctAnswer);
@@ -166,36 +169,52 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
   revealCorrectAnswer(correctAnswer);
   if (selectedAnswer.innerText === correctAnswer) {
     playSound(true);
-    setTimeout(() => {
-      currentQuestionNo++;
-      resetAnswers();
-      populateAnswers();
-      updateProgressSection();
-    }, 4000);
-    
+    setTimeout(
+      () => {
+        currentQuestionNo++;
+        resetAnswers();
+        populateAnswers();
+        updateProgressSection();
+      },
+      currentQuestionNo >= 5 ? 8000 : 4000
+    );
+
     //proceed to the next question
   } else {
     //It's the wrong answer dun dun dun.........
     playSound();
     getQuestionsAndDisplayPlayButton(true);
   }
-}
+};
 
 const revealCorrectAnswer = (correctAnswer) => {
-  const correctAnswerSection = Array.from(document.querySelectorAll("#answer")).filter((answer) => answer.innerText === correctAnswer.trim())[0];
+  const correctAnswerSection = Array.from(
+    document.querySelectorAll("#answer")
+  ).filter((answer) => answer.innerText === correctAnswer.trim())[0];
   correctAnswerSection.parentElement.classList.remove("highlight");
-  correctAnswerSection.parentElement.style.backgroundColor = '#3eed4f';
-}
+  correctAnswerSection.parentElement.style.backgroundColor = "#3eed4f";
+};
 
 const playSound = (isCorrectAnswer) => {
-  var audioPath = `assets/sounds/question ${currentQuestionNo <= 5 ? "1-5" : currentQuestionNo}/${isCorrectAnswer ? "win" : "lose"}.mp3`; 
+  let audioPath;
+  if (currentQuestionNo == 5 && isCorrectAnswer) {
+    audioPath = "assets/sounds/question 5/win.mp3";
+  } else {
+    audioPath = `assets/sounds/question ${
+      currentQuestionNo <= 5 ? "1-5" : currentQuestionNo
+    }/${isCorrectAnswer ? "win" : "lose"}.mp3`;
+  }
   var audio = new Audio(audioPath);
   audio.play();
-}
+};
 
 const populateAnswers = () => {
   const questionNo = currentQuestionNo - 1;
-  const questionsThemeAudio = new Audio(`assets/sounds/question ${questionNo <= 5 ? '1-5' : questionNo}/question theme.mp3`);
+  const questionsThemeAudio = new Audio(
+    `assets/sounds/question ${
+      currentQuestionNo <= 5 ? "1-5" : currentQuestionNo
+    }/question theme.mp3`
+  );
   questionsThemeAudio.loop = true;
   questionsThemeAudio.play();
   const { question, correct_answer, incorrect_answers } =
@@ -207,16 +226,15 @@ const populateAnswers = () => {
   answerSections.forEach((answerSection, index) => {
     answerSection.innerText = shuffledAnswers[index];
     answerSection.parentElement.addEventListener("click", () => {
-        questionsThemeAudio.pause();
-        //Added this guard to prevent the player selecting a different answer selecting their original answer
-        if(!answerSelected){
-          answerSelected = true;
-          //Have to retrieve the correct again to ensure it doesn't load the previous correct answer
-          const question = currentQuestionNo - 1;
-          const correctAnswer =allQuestions[question].correct_answer;
-          checkAnswer(answerSection, correctAnswer);
-        }
-    }
-    );
+      questionsThemeAudio.pause();
+      //Added this guard to prevent the player selecting a different answer selecting their original answer
+      if (!answerSelected) {
+        answerSelected = true;
+        //Have to retrieve the correct again to ensure it doesn't load the previous correct answer
+        const question = currentQuestionNo - 1;
+        const correctAnswer = allQuestions[question].correct_answer;
+        checkAnswer(answerSection, correctAnswer);
+      }
+    });
   });
 };
