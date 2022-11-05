@@ -78,11 +78,6 @@ const updateProgressSection = () => {
 };
 
 populateProgressSection();
-const phoneButton = document.querySelector("#phone");
-phoneButton.addEventListener("click", () => {
-  console.log("Calling friend....");
-});
-
 let allQuestions = [];
 
 const getQuestions = (difficulty) => {
@@ -238,3 +233,31 @@ const populateAnswers = () => {
     });
   });
 };
+
+//Lifelines
+
+const disableLifeline = (lifelineButton) => {
+  lifelineButton.setAttribute("disabled", true);
+  lifelineButton.style.textDecoration = "line-through";
+  lifelineButton.style.color = "#d40808";
+};
+
+const phoneButton = document.querySelector("#phone");
+phoneButton.addEventListener("click", () => {
+  console.log("Calling friend....");
+});
+
+const fiftyFiftyButton = document.querySelector("#fifty-fifty-lifeline-button");
+fiftyFiftyButton.addEventListener("click", () => {
+  const questionNo = currentQuestionNo - 1;
+  const { incorrect_answers } = allQuestions[questionNo];
+  const incorrectAnswerIndex = Math.floor(Math.random() * 3);
+  incorrect_answers.splice(incorrectAnswerIndex, 1);
+
+  const audio = new Audio(`assets/sounds/lifelines/5050.mp3`);
+  audio.play();
+  Array.from(document.querySelectorAll("#answer"))
+    .filter((answer) => incorrect_answers.includes(answer.innerText.trim()))
+    .forEach((incorrectAnswer) => (incorrectAnswer.innerText = ""));
+  disableLifeline(fiftyFiftyButton);
+});
