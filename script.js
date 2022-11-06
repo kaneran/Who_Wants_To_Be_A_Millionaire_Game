@@ -1,6 +1,7 @@
 let currentQuestionNo = 1;
 let answerSelected = false;
 let orangeWhiteColor = "#F6F2DA";
+const placeholderImage = document.querySelector("#placeholder-image");
 const prizes = [
   "£100",
   "£200",
@@ -170,6 +171,8 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
         resetAnswers();
         populateAnswers();
         updateProgressSection();
+        placeholderImage.style.display = "block";
+        document.querySelector("#myChart").style.display = "none";
       },
       currentQuestionNo >= 5 ? 8000 : 4000
     );
@@ -262,7 +265,7 @@ fiftyFiftyButton.addEventListener("click", () => {
   disableLifeline(fiftyFiftyButton);
 });
 
-const getAudienceResponses = () => {
+const getAudienceResponses = (options) => {
   let optionsList = [];
   let audienceResponses = [];
   let audienceResponsesCount = [];
@@ -273,13 +276,12 @@ const getAudienceResponses = () => {
   ).filter((answer) => answer.innerText.trim() == correct_answer)[0];
   const correctOption =
     correctAnswerSection.parentElement.firstChild.innerText.replace(":", "");
-  const options = ["A", "B", "C", "D"];
   const incorrectOptions = options.filter((option) => option != correctOption)
-  for(let i = 0; i< 40; i++){
+  for(let i = 0; i< 50; i++){
     optionsList.push(correctOption);
   }
   incorrectOptions.forEach((option) => {
-    for(let i = 0; i< 20; i++){
+    for(let i = 0; i< (50/incorrectOptions.length); i++){
       optionsList.push(option);
     }
   });
@@ -297,13 +299,17 @@ const getAudienceResponses = () => {
 
 const askAudienceButton = document.querySelector("#ask-audience-button");
 askAudienceButton.addEventListener("click", () => {
-  const placeholderImage = document.querySelector("#placeholder-image");
+  const options = Array.from(
+    document.querySelectorAll("#answer")
+  ).filter((answer) => answer.innerText.trim() !== "").map((answer) => answer.parentElement.firstChild.innerText.replace(":", ""));
+  
   placeholderImage.style.display = "none";
   const barChart = document.querySelector("#myChart");
   barChart.style.display = "block";
-  var xValues = ["A", "B", "C", "D"];
-  var yValues = getAudienceResponses();
-  var barColors = "red";
+  const audienceResponses = getAudienceResponses(options);
+  var yValues = audienceResponses;
+  var xValues = options.map((option, index) => `${option}(${audienceResponses[index]}%)`);
+  var barColors = "rgba(25, 165, 235, 1)";
 
   new Chart("myChart", {
     type: "bar",
@@ -320,7 +326,7 @@ askAudienceButton.addEventListener("click", () => {
       legend: { display: false },
       title: {
         display: true,
-        text: "World Wine Production 2018",
+        text: "Audience Responses",
       },
     },
   });
