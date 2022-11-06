@@ -140,7 +140,7 @@ const displayPlayButton = () => {
 };
 
 //Fun-fact, this is called the Fisher-Yates Shuffle algorithm!
-const shuffleAnswers = (answers) => {
+const shuffleArray = (answers) => {
   for (let i = answers.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1));
     [answers[i], answers[j]] = [answers[j], answers[i]];
@@ -216,7 +216,7 @@ const populateAnswers = () => {
     allQuestions[questionNo];
   questionSection.innerText = question.replace(/&quot;/g, "'");
   const answers = [...incorrect_answers, correct_answer];
-  const shuffledAnswers = shuffleAnswers(answers);
+  const shuffledAnswers = shuffleArray(answers);
   const answerSections = document.querySelectorAll("#answer");
   answerSections.forEach((answerSection, index) => {
     answerSection.innerText = shuffledAnswers[index];
@@ -260,4 +260,69 @@ fiftyFiftyButton.addEventListener("click", () => {
     .filter((answer) => incorrect_answers.includes(answer.innerText.trim()))
     .forEach((incorrectAnswer) => (incorrectAnswer.innerText = ""));
   disableLifeline(fiftyFiftyButton);
+});
+
+const getAudienceResponses = () => {
+  let optionsList = [];
+  let audienceResponses = [];
+  let audienceResponsesCount = [];
+  const questionNo = currentQuestionNo - 1;
+  const { correct_answer } = allQuestions[questionNo];
+  const correctAnswerSection = Array.from(
+    document.querySelectorAll("#answer")
+  ).filter((answer) => answer.innerText.trim() == correct_answer)[0];
+  const correctOption =
+    correctAnswerSection.parentElement.firstChild.innerText.replace(":", "");
+  const options = ["A", "B", "C", "D"];
+  const incorrectOptions = options.filter((option) => option != correctOption)
+  for(let i = 0; i< 40; i++){
+    optionsList.push(correctOption);
+  }
+  incorrectOptions.forEach((option) => {
+    for(let i = 0; i< 20; i++){
+      optionsList.push(option);
+    }
+  });
+  const shuffledOptions = shuffleArray(optionsList);
+  for(let i = 0; i< 100; i++){
+    const randomIndex = Math.floor(Math.random() * 101);
+    audienceResponses.push(shuffledOptions[randomIndex]);
+  }
+  options.forEach((option) => {
+    const optionCount = audienceResponses.filter((response) => response == option).length;
+    audienceResponsesCount.push(optionCount);
+  });
+  return audienceResponsesCount;
+}
+
+const askAudienceButton = document.querySelector("#ask-audience-button");
+askAudienceButton.addEventListener("click", () => {
+  const placeholderImage = document.querySelector("#placeholder-image");
+  placeholderImage.style.display = "none";
+  const barChart = document.querySelector("#myChart");
+  barChart.style.display = "block";
+  var xValues = ["A", "B", "C", "D"];
+  var yValues = getAudienceResponses();
+  var barColors = "red";
+
+  new Chart("myChart", {
+    type: "bar",
+    data: {
+      labels: xValues,
+      datasets: [
+        {
+          backgroundColor: barColors,
+          data: yValues,
+        },
+      ],
+    },
+    options: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: "World Wine Production 2018",
+      },
+    },
+  });
+  disableLifeline(askAudienceButton);
 });
