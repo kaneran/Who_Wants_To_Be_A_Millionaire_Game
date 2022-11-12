@@ -1,6 +1,7 @@
 let currentQuestionNo = 1;
 let answerSelected = false;
 let orangeWhiteColor = "#F6F2DA";
+let questionsThemeAudio;
 const placeholderImage = document.querySelector("#placeholder-image");
 const prizes = [
   "£100",
@@ -120,10 +121,11 @@ const getQuestionsAndDisplayPlayButton = (displayOutro, playerWonOrTakesAwayMone
 const displayPrize = (playerWonOrTakesAwayMoney) => {
   const outro = document.createElement("p");
   const questionNo = currentQuestionNo - 1;
+  const prizeToCollect = currentQuestionNo - 2;
   let prize;
-  if (questionNo < 5) prize = "£0";
-  else if (questionNo < 10) prize = prizes[4];
-  else if (playerWonOrTakesAwayMoney) prize = prizes[questionNo];
+  if (playerWonOrTakesAwayMoney) prize =  prizeToCollect < 0 ? "£0" : prizes[prizeToCollect];
+  else if (questionNo < 5) prize = "£0";
+  else if (questionNo < 10) prize = prizes[4]; 
   else prize = prizes[9];
   outro.innerText = playerWonOrTakesAwayMoney ? 
   `Well played! You are walking away with ${prize}!`
@@ -136,6 +138,7 @@ getQuestionsAndDisplayPlayButton();
 const beginGame = () => {
   resetAnswers();
   populateAnswers();
+  displayWalkAwayButton();
   currentQuestionNo = 1;
   populateProgressSection();
 };
@@ -148,7 +151,20 @@ const displayPlayButton = () => {
   playButton.addEventListener("click", () => beginGame());
   questionSection.innerText = "";
   questionSection.appendChild(playButton);
-  return playButton;
+};
+
+const displayWalkAwayButton = () => {
+  const walkAwayButton = document.createElement("button");
+  walkAwayButton.innerText = "Walk Away";
+  walkAwayButton.classList.add("startButton");
+  walkAwayButton.classList.add("defaultText");
+  walkAwayButton.addEventListener("click", () => {
+    questionsThemeAudio.pause();
+    const walkAwayAudio = new Audio("assets/sounds/collect.mp3");
+    getQuestionsAndDisplayPlayButton(true,true);
+    walkAwayAudio.play();
+  });
+  questionSection.prepend(walkAwayButton);
 };
 
 //Fun-fact, this is called the Fisher-Yates Shuffle algorithm!
@@ -189,6 +205,7 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
           currentQuestionNo++;
           resetAnswers();
           populateAnswers();
+          displayWalkAwayButton();
           updateProgressSection();
           placeholderImage.style.display = "block";
           document.querySelector("#myChart").style.display = "none";
@@ -236,7 +253,7 @@ const playSound = (isCorrectAnswer) => {
 
 const populateAnswers = () => {
   const questionNo = currentQuestionNo - 1;
-  const questionsThemeAudio = new Audio(
+  questionsThemeAudio = new Audio(
     `assets/sounds/question ${
       currentQuestionNo <= 5 ? "1-5" : currentQuestionNo
     }/question theme.mp3`
