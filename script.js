@@ -26,6 +26,7 @@ const populateProgressSection = () => {
     prize,
   }));
   const progress = document.querySelector("#progress");
+  progress.innerHTML = '';
   questionPrizeMap.forEach(({ questionNumber, prize }) => {
     const questionNo = questionNumber + 1;
     const doApplyHighlighting = questionNo === currentQuestionNo;
@@ -101,7 +102,7 @@ const resetAnswers = () => {
 };
 
 const questionSection = document.querySelector("#question");
-const getQuestionsAndDisplayPlayButton = (displayOutro) => {
+const getQuestionsAndDisplayPlayButton = (displayOutro, playerWonOrTakesAwayMoney) => {
   allQuestions = [];
   getQuestions("easy")
     .then(() => getQuestions("medium"))
@@ -111,16 +112,23 @@ const getQuestionsAndDisplayPlayButton = (displayOutro) => {
     })
     .then(() => {
       if (displayOutro) {
-        const outro = document.createElement("p");
-        const questionNo = currentQuestionNo - 1;
-        let prize;
-        if (questionNo < 5) prize = "£0";
-        else if (questionNo < 10) prize = prizes[4];
-        else prize = prizes[9];
-        outro.innerText = `Game over! You've won ${prize}`;
-        questionSection.appendChild(outro);
+        displayPrize(playerWonOrTakesAwayMoney);
       }
     });
+};
+
+const displayPrize = (playerWonOrTakesAwayMoney) => {
+  const outro = document.createElement("p");
+  const questionNo = currentQuestionNo - 1;
+  let prize;
+  if (questionNo < 5) prize = "£0";
+  else if (questionNo < 10) prize = prizes[4];
+  else if (playerWonOrTakesAwayMoney) prize = prizes[questionNo];
+  else prize = prizes[9];
+  outro.innerText = playerWonOrTakesAwayMoney ? 
+  `Well played! You are walking away with ${prize}!`
+  : `Game over! You've won ${prize}`;
+  questionSection.appendChild(outro);
 };
 
 getQuestionsAndDisplayPlayButton();
@@ -128,6 +136,8 @@ getQuestionsAndDisplayPlayButton();
 const beginGame = () => {
   resetAnswers();
   populateAnswers();
+  currentQuestionNo = 1;
+  populateProgressSection();
 };
 
 const displayPlayButton = () => {
@@ -151,34 +161,42 @@ const shuffleArray = (answers) => {
 };
 
 const checkAnswer = (selectedAnswer, correctAnswer) => {
-  // firstFiveQuestionsThemeAudio.pause();
-  // firstFiveQuestionsThemeAudio.currentTime = 0;
-  if (currentQuestionNo > 5) {
-    //play final answer
-  }
-
   selectedAnswer.parentElement.classList.add("highlight");
   selectedAnswer.parentElement.firstChild.style.color = orangeWhiteColor;
-  revealOutcome(selectedAnswer, correctAnswer);
+  if (currentQuestionNo > 5) {
+    //play final answer
+    const audioPath = `assets/sounds/question ${currentQuestionNo}/final answer.mp3`;
+    var audio = new Audio(audioPath);
+    audio.play();
+    setTimeout(() => {
+      audio.pause();
+      revealOutcome(selectedAnswer, correctAnswer);
+    }, 4000);
+  } else {
+    revealOutcome(selectedAnswer, correctAnswer);
+  }
 };
 
 const revealOutcome = (selectedAnswer, correctAnswer) => {
   revealCorrectAnswer(correctAnswer);
   if (selectedAnswer.innerText === correctAnswer) {
     playSound(true);
-    setTimeout(
-      () => {
-        currentQuestionNo++;
-        resetAnswers();
-        populateAnswers();
-        updateProgressSection();
-        hideFriendResponse();
-        placeholderImage.style.display = "block";
-        document.querySelector("#myChart").style.display = "none";
-      },
-      currentQuestionNo >= 5 ? 8000 : 4000
-    );
-
+    if (currentQuestionNo === 15) {
+      getQuestionsAndDisplayPlayButton(true, true);
+    } else{
+      setTimeout(
+        () => {
+          currentQuestionNo++;
+          resetAnswers();
+          populateAnswers();
+          updateProgressSection();
+          placeholderImage.style.display = "block";
+          document.querySelector("#myChart").style.display = "none";
+          hideFriendResponse();
+        },
+        currentQuestionNo >= 5 ? 8000 : 4000
+      );
+    }
     //proceed to the next question
   } else {
     //It's the wrong answer dun dun dun.........
@@ -260,12 +278,12 @@ fiftyFiftyButton.addEventListener("click", () => {
   const questionNo = currentQuestionNo - 1;
   const { incorrect_answers } = allQuestions[questionNo];
   const incorrectAnswerIndex = Math.floor(Math.random() * 3);
-  incorrect_answers.splice(incorrectAnswerIndex, 1);
-
+  const incorrectAnswers = shuffleArray(incorrect_answers);
+  const answersToHide = incorrectAnswers.filter(incorrectAnswer => incorrectAnswer !== incorrectAnswers[incorrectAnswerIndex]);
   const audio = new Audio(`assets/sounds/lifelines/5050.mp3`);
   audio.play();
   Array.from(document.querySelectorAll("#answer"))
-    .filter((answer) => incorrect_answers.includes(answer.innerText.trim()))
+    .filter((answer) => answersToHide.includes(answer.innerText.trim()))
     .forEach((incorrectAnswer) => (incorrectAnswer.innerText = ""));
   disableLifeline(fiftyFiftyButton);
 });
