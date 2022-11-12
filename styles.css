@@ -123,9 +123,12 @@ main{
 
 .startButton {
     background: linear-gradient(90deg, rgba(142,6,233,1) 0%, rgba(152,4,238,1) 50%, rgba(86,19,233,1) 100%);
+    border: 2px solid #033212;
+    border-radius: 10%;
+}
+
+.defaultText {
     font-family: monospace;
     font-size: xx-large;
     color:white;
-    border: 2px solid #033212;
-    border-radius: 10%;
 }

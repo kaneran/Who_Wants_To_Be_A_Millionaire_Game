@@ -134,6 +134,7 @@ const displayPlayButton = () => {
   const playButton = document.createElement("button");
   playButton.innerText = "Play";
   playButton.classList.add("startButton");
+  playButton.classList.add("defaultText");
   playButton.addEventListener("click", () => beginGame());
   questionSection.innerText = "";
   questionSection.appendChild(playButton);
@@ -171,6 +172,7 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
         resetAnswers();
         populateAnswers();
         updateProgressSection();
+        hideFriendResponse();
         placeholderImage.style.display = "block";
         document.querySelector("#myChart").style.display = "none";
       },
@@ -182,6 +184,14 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
     //It's the wrong answer dun dun dun.........
     playSound();
     getQuestionsAndDisplayPlayButton(true);
+  }
+};
+
+const hideFriendResponse = () => {
+  const playerCalledFriendBefore =
+    document.querySelector("#placeholder").children.length === 3;
+  if (playerCalledFriendBefore) {
+    document.querySelector("#placeholder > p").style.display = "none";
   }
 };
 
@@ -245,11 +255,6 @@ const disableLifeline = (lifelineButton) => {
   lifelineButton.style.color = "#d40808";
 };
 
-const phoneButton = document.querySelector("#phone");
-phoneButton.addEventListener("click", () => {
-  console.log("Calling friend....");
-});
-
 const fiftyFiftyButton = document.querySelector("#fifty-fifty-lifeline-button");
 fiftyFiftyButton.addEventListener("click", () => {
   const questionNo = currentQuestionNo - 1;
@@ -276,39 +281,45 @@ const getAudienceResponses = (options) => {
   ).filter((answer) => answer.innerText.trim() == correct_answer)[0];
   const correctOption =
     correctAnswerSection.parentElement.firstChild.innerText.replace(":", "");
-  const incorrectOptions = options.filter((option) => option != correctOption)
-  for(let i = 0; i< 50; i++){
+  const incorrectOptions = options.filter((option) => option != correctOption);
+  for (let i = 0; i < 50; i++) {
     optionsList.push(correctOption);
   }
   incorrectOptions.forEach((option) => {
-    for(let i = 0; i< (50/incorrectOptions.length); i++){
+    for (let i = 0; i < 50 / incorrectOptions.length; i++) {
       optionsList.push(option);
     }
   });
   const shuffledOptions = shuffleArray(optionsList);
-  for(let i = 0; i< 100; i++){
+  for (let i = 0; i < 100; i++) {
     const randomIndex = Math.floor(Math.random() * 101);
     audienceResponses.push(shuffledOptions[randomIndex]);
   }
   options.forEach((option) => {
-    const optionCount = audienceResponses.filter((response) => response == option).length;
+    const optionCount = audienceResponses.filter(
+      (response) => response == option
+    ).length;
     audienceResponsesCount.push(optionCount);
   });
   return audienceResponsesCount;
-}
+};
 
 const askAudienceButton = document.querySelector("#ask-audience-button");
 askAudienceButton.addEventListener("click", () => {
-  const options = Array.from(
-    document.querySelectorAll("#answer")
-  ).filter((answer) => answer.innerText.trim() !== "").map((answer) => answer.parentElement.firstChild.innerText.replace(":", ""));
-  
+  const options = Array.from(document.querySelectorAll("#answer"))
+    .filter((answer) => answer.innerText.trim() !== "")
+    .map((answer) =>
+      answer.parentElement.firstChild.innerText.replace(":", "")
+    );
+  hideFriendResponse();
   placeholderImage.style.display = "none";
   const barChart = document.querySelector("#myChart");
   barChart.style.display = "block";
   const audienceResponses = getAudienceResponses(options);
   var yValues = audienceResponses;
-  var xValues = options.map((option, index) => `${option}(${audienceResponses[index]}%)`);
+  var xValues = options.map(
+    (option, index) => `${option}(${audienceResponses[index]}%)`
+  );
   var barColors = "rgba(25, 165, 235, 1)";
 
   new Chart("myChart", {
@@ -331,4 +342,24 @@ askAudienceButton.addEventListener("click", () => {
     },
   });
   disableLifeline(askAudienceButton);
+});
+
+const callFriendButton = document.querySelector("#call-friend-button");
+callFriendButton.addEventListener("click", () => {
+  const question = currentQuestionNo - 1;
+  const correctAnswer = allQuestions[question].correct_answer;
+  placeholderImage.style.display = "none";
+  const barChart = document.querySelector("#myChart");
+  const placeholder = document.querySelector("#placeholder");
+  barChart.style.display = "none";
+  const friendResponse = document.createElement("p");
+  const friendKnowsCorrectAnswer = Math.floor(Math.random() * 2) === 0;
+  friendResponse.innerText = `Friend says "${
+    friendKnowsCorrectAnswer
+      ? `I think the answer is ${correctAnswer}`
+      : "Oh mate I'm so sorry but I don't the answer"
+  }"`;
+  friendResponse.classList.add("defaultText");
+  placeholder.appendChild(friendResponse);
+  disableLifeline(callFriendButton);
 });
