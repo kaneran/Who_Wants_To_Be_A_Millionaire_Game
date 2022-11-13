@@ -137,6 +137,7 @@ getQuestionsAndDisplayPlayButton();
 
 const beginGame = () => {
   resetAnswers();
+  resetLifelines();
   populateAnswers();
   displayWalkAwayButton();
   currentQuestionNo = 1;
@@ -398,3 +399,13 @@ callFriendButton.addEventListener("click", () => {
   placeholder.appendChild(friendResponse);
   disableLifeline(callFriendButton);
 });
+const resetLifelines = () => {
+  callFriendButton.removeAttribute("disabled");
+  callFriendButton.style.textDecoration = "";
+  callFriendButton.style.color = "#FFFFFF";
+};
+
+//TODO:
+//1) Fix bug where ask the friend shows text from previous game
+//2) Reset lifelines when game begins (remove styling and enable it)
+//3) Amend background to make it more "professional"
