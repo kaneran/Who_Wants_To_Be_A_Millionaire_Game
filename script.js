@@ -27,7 +27,7 @@ const populateProgressSection = () => {
     prize,
   }));
   const progress = document.querySelector("#progress");
-  progress.innerHTML = '';
+  progress.innerHTML = "";
   questionPrizeMap.forEach(({ questionNumber, prize }) => {
     const questionNo = questionNumber + 1;
     const doApplyHighlighting = questionNo === currentQuestionNo;
@@ -103,7 +103,10 @@ const resetAnswers = () => {
 };
 
 const questionSection = document.querySelector("#question");
-const getQuestionsAndDisplayPlayButton = (displayOutro, playerWonOrTakesAwayMoney) => {
+const getQuestionsAndDisplayPlayButton = (
+  displayOutro,
+  playerWonOrTakesAwayMoney
+) => {
   allQuestions = [];
   getQuestions("easy")
     .then(() => getQuestions("medium"))
@@ -123,24 +126,27 @@ const displayPrize = (playerWonOrTakesAwayMoney) => {
   const questionNo = currentQuestionNo - 1;
   const prizeToCollect = currentQuestionNo - 2;
   let prize;
-  if (playerWonOrTakesAwayMoney) prize =  prizeToCollect < 0 ? "£0" : prizes[prizeToCollect];
+  if (playerWonOrTakesAwayMoney)
+    prize = prizeToCollect < 0 ? "£0" : prizes[prizeToCollect];
   else if (questionNo < 5) prize = "£0";
-  else if (questionNo < 10) prize = prizes[4]; 
+  else if (questionNo < 10) prize = prizes[4];
   else prize = prizes[9];
-  outro.innerText = playerWonOrTakesAwayMoney ? 
-  `Well played! You are walking away with ${prize}!`
-  : `Game over! You've won ${prize}`;
+  outro.innerText = playerWonOrTakesAwayMoney
+    ? `Well played! You are walking away with ${prize}!`
+    : `Game over! You've won ${prize}`;
   questionSection.appendChild(outro);
 };
 
 getQuestionsAndDisplayPlayButton();
 
 const beginGame = () => {
+  currentQuestionNo = 1;
+  hideFriendResponse();
+  placeholderImage.style.display = "block";
   resetAnswers();
   resetLifelines();
   populateAnswers();
   displayWalkAwayButton();
-  currentQuestionNo = 1;
   populateProgressSection();
 };
 
@@ -160,9 +166,12 @@ const displayWalkAwayButton = () => {
   walkAwayButton.classList.add("startButton");
   walkAwayButton.classList.add("defaultText");
   walkAwayButton.addEventListener("click", () => {
+    const question = currentQuestionNo - 1;
+    const correctAnswer = allQuestions[question].correct_answer;
+    revealCorrectAnswer(correctAnswer);
     questionsThemeAudio.pause();
     const walkAwayAudio = new Audio("assets/sounds/collect.mp3");
-    getQuestionsAndDisplayPlayButton(true,true);
+    getQuestionsAndDisplayPlayButton(true, true);
     walkAwayAudio.play();
   });
   questionSection.prepend(walkAwayButton);
@@ -200,7 +209,7 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
     playSound(true);
     if (currentQuestionNo === 15) {
       getQuestionsAndDisplayPlayButton(true, true);
-    } else{
+    } else {
       setTimeout(
         () => {
           currentQuestionNo++;
@@ -225,9 +234,11 @@ const revealOutcome = (selectedAnswer, correctAnswer) => {
 
 const hideFriendResponse = () => {
   const playerCalledFriendBefore =
-    document.querySelector("#placeholder").children.length === 3;
+    document.querySelector("#placeholder").children.length >= 3;
   if (playerCalledFriendBefore) {
-    document.querySelector("#placeholder > p").style.display = "none";
+    for (const child of document.querySelector("#placeholder").children) {
+      child.style.display = "none";
+    }
   }
 };
 
@@ -263,7 +274,7 @@ const populateAnswers = () => {
   questionsThemeAudio.play();
   const { question, correct_answer, incorrect_answers } =
     allQuestions[questionNo];
-  questionSection.innerText = question.replace(/&quot;/g, "'");
+  questionSection.innerText = question.replace(/&quot;/g, "'").replace('&#039;',"'");
   const answers = [...incorrect_answers, correct_answer];
   const shuffledAnswers = shuffleArray(answers);
   const answerSections = document.querySelectorAll("#answer");
@@ -297,7 +308,10 @@ fiftyFiftyButton.addEventListener("click", () => {
   const { incorrect_answers } = allQuestions[questionNo];
   const incorrectAnswerIndex = Math.floor(Math.random() * 3);
   const incorrectAnswers = shuffleArray(incorrect_answers);
-  const answersToHide = incorrectAnswers.filter(incorrectAnswer => incorrectAnswer !== incorrectAnswers[incorrectAnswerIndex]);
+  const answersToHide = incorrectAnswers.filter(
+    (incorrectAnswer) =>
+      incorrectAnswer !== incorrectAnswers[incorrectAnswerIndex]
+  );
   const audio = new Audio(`assets/sounds/lifelines/5050.mp3`);
   audio.play();
   Array.from(document.querySelectorAll("#answer"))
@@ -400,12 +414,10 @@ callFriendButton.addEventListener("click", () => {
   disableLifeline(callFriendButton);
 });
 const resetLifelines = () => {
-  callFriendButton.removeAttribute("disabled");
-  callFriendButton.style.textDecoration = "";
-  callFriendButton.style.color = "#FFFFFF";
+  const lifelines = [callFriendButton, askAudienceButton, fiftyFiftyButton];
+  lifelines.forEach((lifeline) => {
+    lifeline.removeAttribute("disabled");
+    lifeline.style.textDecoration = "";
+    lifeline.style.color = "#FFFFFF";
+  });
 };
-
-//TODO:
-//1) Fix bug where ask the friend shows text from previous game
-//2) Reset lifelines when game begins (remove styling and enable it)
-//3) Amend background to make it more "professional"

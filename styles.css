@@ -1,5 +1,6 @@
 body {
-    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(11,11,73,1) 50%, rgba(2,9,46,1) 100%);
+    background-image: url("assets/images/background.png");
+    /* background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(11,11,73,1) 50%, rgba(2,9,46,1) 100%); */
 }
 
 main{
@@ -18,7 +19,7 @@ main{
 #gameboard{
     display: flex;
     min-height: 100vh;
-    width: 90vw;
+    width: 95vw;
 }
 
 #progress{
@@ -70,6 +71,7 @@ main{
 #question, #answer-placeholder {
     color: white;
     border: 2px solid #5d9ff5;
+    border-radius: 100px;
     background-color: black;
     font-family: monospace;
     font-size: 200%;
@@ -95,6 +97,7 @@ main{
 #answer-placeholder > span {
     color: #f29435;
     font-style: italic;
+    margin-left: 5px;
 }
 
 #lifelines{
