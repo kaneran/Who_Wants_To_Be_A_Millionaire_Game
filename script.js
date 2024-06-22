@@ -83,14 +83,13 @@ const updateProgressSection = () => {
 populateProgressSection();
 let allQuestions = [];
 
-const getQuestions = (difficulty) => {
-  return fetch(
-    `https://opentdb.com/api.php?amount=5&difficulty=${difficulty}&type=multiple`
-  )
-    .then((data) => data.json())
-    .then((questions) => {
-      allQuestions.push(...questions.results);
-    });
+
+const getQuestions = (categoryId) => {
+  return fetch(`https://localhost:7109/api/QuestionAnswer?categoryId=${categoryId}`, {method: 'GET', redirect: 'follow'}).then((data) => data.json())
+  .then((questions) => {
+    allQuestions.push(...questions.results);
+  });
+
 };
 
 const resetAnswers = () => {
@@ -108,9 +107,38 @@ const getQuestionsAndDisplayPlayButton = (
   playerWonOrTakesAwayMoney
 ) => {
   allQuestions = [];
-  getQuestions("easy")
-    .then(() => getQuestions("medium"))
-    .then(() => getQuestions("hard"))
+  const categoryDropdown = document.getElementById("category");
+  const modal = document.getElementById("categoryModal");
+  const modalConfirmButton = document.getElementById("confirm-btn");
+  modalConfirmButton.disabled = true;
+
+  categoryDropdown.addEventListener("change", () => {
+    modalConfirmButton.disabled = false;
+    modalConfirmButton.classList.remove("startButton-inactive");
+    modalConfirmButton.classList.add("startButton");
+  });
+
+  if (displayOutro) {
+    const playButton = getButton("Restart");
+    playButton.addEventListener("click", () => modal.style.display = "block");
+    questionSection.innerText = "";
+    questionSection.appendChild(playButton);
+    displayPrize(playerWonOrTakesAwayMoney);
+  } else {
+    modal.style.display = "block";
+  }
+  fetch("https://localhost:7109/api/Category", {method: 'GET', redirect: 'follow'}).then((data) => data.json()).then((categories) => {
+      for(var i = 0; i< categories.length; i++){
+        const {category_ID, name} = categories[i];
+        const index = i +1;
+        categoryDropdown.options[index] = new Option(name,category_ID);
+      }
+  })
+
+
+  document.getElementById("confirm-btn").addEventListener('click', function displayData(){
+    modal.style.display = "none";
+    getQuestions(categoryDropdown.value)
     .then(() => {
       displayPlayButton();
     })
@@ -118,7 +146,9 @@ const getQuestionsAndDisplayPlayButton = (
       if (displayOutro) {
         displayPrize(playerWonOrTakesAwayMoney);
       }
-    });
+    })
+    .then(() => modalConfirmButton.removeEventListener('click', displayData));
+  })
 };
 
 const displayPrize = (playerWonOrTakesAwayMoney) => {
@@ -151,13 +181,18 @@ const beginGame = () => {
 };
 
 const displayPlayButton = () => {
-  const playButton = document.createElement("button");
-  playButton.innerText = "Play";
-  playButton.classList.add("startButton");
-  playButton.classList.add("defaultText");
+  const playButton = getButton("Play")
   playButton.addEventListener("click", () => beginGame());
   questionSection.innerText = "";
   questionSection.appendChild(playButton);
+};
+
+const getButton = (text) => {
+  const button = document.createElement("button");
+  button.innerText = text;
+  button.classList.add("startButton");
+  button.classList.add("defaultText");
+  return button;
 };
 
 const displayWalkAwayButton = () => {
